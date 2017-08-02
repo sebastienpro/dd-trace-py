@@ -9,7 +9,7 @@ machine:
     - pyenv global 2.7.12 3.4.4 3.5.2 3.6.1
 
 dependencies:
-  pre:
+  override:
     # we should use an old docker-compose because CircleCI supports
     # only docker-engine==1.9
     - pip install docker-compose==1.7.1
@@ -17,6 +17,8 @@ dependencies:
 
 test:
   override:
+    - docker-compose up -d | cat
+    - docker ps --no-trunc
     - rake test_parallel:
         parallel: true
 
