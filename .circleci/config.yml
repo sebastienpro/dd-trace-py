@@ -1,0 +1,40 @@
+version: 2
+
+jobs:
+  build:
+    working_directory: ~/dd-trace-py
+    docker:
+      - image: python:3.6.2
+    steps:
+      - checkout
+      - setup_remote_docker
+      - run:
+          name: Install Docker Compose
+          command: |
+            set -x
+            curl -L https://github.com/docker/compose/releases/download/1.15.0/docker-compose-`uname -s`-`uname -m` > /usr/local/bin/docker-compose
+            chmod +x /usr/local/bin/docker-compose
+      - run:
+          name: Start external services
+          command: |
+            set -x
+            docker-compose up -d | cat
+
+  test:
+    working_directory: ~/code
+    docker:
+      - image: palazzem/cci-docker-primary:0.1.0
+      - image: redis:3.2
+    steps:
+      - checkout
+      - run: pip install tox -U
+      #- run: tox -r -e "{py36}-tracer"
+      - run: nc -vz localhost 6379
+      - run: tox -r -e "{py36}-redis{210}"
+
+workflows:
+  version: 2
+  build_and_test:
+    jobs:
+      #- build
+      - test
