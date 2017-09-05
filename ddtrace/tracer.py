@@ -5,11 +5,12 @@ from os import getpid
 from .ext import system
 from .provider import DefaultContextProvider
 from .context import Context
-from .sampler import AllSampler, RateSampler, RateByServiceSampler, SAMPLE_RATE_METRIC_KEY
+from .sampler import AllSampler, RateSampler  #RateByServiceSampler
 from .writer import AgentWriter
 from .span import Span
 from .constants import FILTERS_KEY
 from . import compat
+from .constants import SAMPLE_RATE_METRIC_KEY, SAMPLING_PRIORITY_KEY
 
 
 log = logging.getLogger(__name__)
@@ -44,7 +45,8 @@ class Tracer(object):
             port=self.DEFAULT_PORT,
             sampler=AllSampler(),
             # TODO: by default, a ServiceSampler periodically updated
-            distributed_sampler=RateByServiceSampler(),
+            # distributed_sampler=RateByServiceSampler(),
+            distributed_sampler=None,
             context_provider=DefaultContextProvider(),
         )
 
@@ -162,12 +164,7 @@ class Tracer(object):
             context = Context()
             parent = None
 
-        if parent:
-            trace_id = parent.trace_id
-            parent_span_id = parent.span_id
-            sampling_priority = parent.get_sampling_priority()
-        else:
-            trace_id, parent_span_id, sampling_priority = context.get_context_attributes()
+        trace_id, parent_span_id, _, _ = context.get_context_attributes()
 
         if trace_id:
             # child_of a non-empty context, so either a local child span or from a remote context
@@ -185,11 +182,10 @@ class Tracer(object):
                 resource=resource,
                 span_type=span_type,
             )
-            span.set_sampling_priority(sampling_priority)
+            context.add_span(span)
 
             # Extra attributes when from a local parent
             if parent:
-                span.sampled = parent.sampled
                 span._parent = parent
 
         else:
@@ -201,9 +197,11 @@ class Tracer(object):
                 resource=resource,
                 span_type=span_type,
             )
+            context.add_span(span)
 
-            span.sampled = self.sampler.sample(span)
-            if span.sampled:
+            sampled = self.sampler.sample(span)
+            context.set_sampled(sampled)
+            if sampled:
                 # When doing client sampling in the client, keep the sample rate so that we can
                 # scale up statistics in the next steps of the pipeline.
                 if isinstance(self.sampler, RateSampler):
@@ -211,13 +209,13 @@ class Tracer(object):
 
                 if self.distributed_sampler:
                     if self.distributed_sampler.sample(span):
-                        span.set_sampling_priority(1)
+                        context.set_sampling_priority(1)
                     else:
-                        span.set_sampling_priority(0)
+                        context.set_sampling_priority(0)
             else:
                 if self.distributed_sampler:
                     # If dropped by the local sampler, distributed instrumentation can drop it too.
-                    span.set_sampling_priority(0)
+                    context.set_sampling_priority(0)
 
         # add common tags
         if self.tags:
@@ -226,9 +224,6 @@ class Tracer(object):
             span.set_tag(system.PID, getpid())
 
         # TODO: add protection if the service is missing?
-
-        # add it to the current context
-        context.add_span(span)
 
         return span
 
@@ -290,8 +285,12 @@ class Tracer(object):
         Record the given ``Context`` if it's finished.
         """
         # extract and enqueue the trace if it's sampled
+        sampling_priority = context.get_sampling_priority()
         trace, sampled = context.get()
         if trace and sampled:
+            if sampling_priority is not None:
+                for span in trace:
+                    span.set_meta(SAMPLING_PRIORITY_KEY, sampling_priority)
             self.write(trace)
 
     def write(self, spans):

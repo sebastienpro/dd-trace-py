@@ -1,2 +1,3 @@
 FILTERS_KEY = 'FILTERS'
 SAMPLING_PRIORITY_KEY = 'sampling.priority'
+SAMPLE_RATE_METRIC_KEY = "_sample_rate"

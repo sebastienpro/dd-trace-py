@@ -24,8 +24,13 @@ class Context(object):
         """
         Initialize a new thread-safe ``Context``.
 
-        :param int trace_id: trace_id of parent span
-        :param int span_id: span_id of parent span
+        It can be instanciated with a given trace_id/span_id, in which case its first span
+        while be a child of it. Useful when creating a trace child of a remote one.
+
+        :param int trace_id: trace_id of the initial parent span
+        :param int span_id: span_id of the initial parent span
+        :param bool sampled: is this trace sampled
+        :param int sampling_priority: sampling priority attached to this trace
         """
         self._trace = []
         self._finished_spans = 0
@@ -44,7 +49,11 @@ class Context(object):
         Useful to propagate context to an external element.
         """
         with self._lock:
-            return self._parent_trace_id, self._parent_span_id, self._sampling_priority
+            # from the current span
+            if self._current_span:
+                return self._current_span.trace_id, self._current_span.span_id, self._sampled, self._sampling_priority
+            # from a manual/remote context
+            return self._parent_trace_id, self._parent_span_id, self._sampled, self._sampling_priority
 
     def get_current_span(self):
         """
@@ -56,28 +65,12 @@ class Context(object):
         with self._lock:
             return self._current_span
 
-    def _set_current_span(self, span):
-        """
-        Set current span internally.
-
-        Non-safe if not used with a lock. For internal Context usage only.
-        """
-        self._current_span = span
-        if span:
-            self._parent_trace_id = span.trace_id
-            self._parent_span_id = span.span_id
-            self._sampled = span.sampled
-            self._sampling_priority = span.get_sampling_priority()
-        else:
-            self._parent_span_id = None
-
     def add_span(self, span):
         """
         Add a span to the context trace list, keeping it as the last active span.
         """
         with self._lock:
-            self._set_current_span(span)
-
+            self._current_span = span
             self._trace.append(span)
             span._context = self
 
@@ -88,7 +81,7 @@ class Context(object):
         """
         with self._lock:
             self._finished_spans += 1
-            self._set_current_span(span._parent)
+            self._current_span = span._parent
 
             # notify if the trace is not closed properly; this check is executed only
             # if the tracer debug_logging is enabled and when the root span is closed
@@ -113,7 +106,45 @@ class Context(object):
         with self._lock:
             return self._is_finished()
 
-    def is_sampled(self):
+    def set_sampling_priority(self, sampling_priority):
+        """
+        Set the sampling priority.
+
+        0 means that the trace can be dropped, any higher value indicates the
+        importance of the trace to the backend sampler.
+        Default is None, the priority mechanism is disabled.
+        """
+        with self._lock:
+            if sampling_priority is None:
+                self._sampling_priority = None
+            else:
+                try:
+                    self._sampling_priority = int(sampling_priority)
+                except TypeError:
+                    # if the provided sampling_priority is invalid, ignore it.
+                    pass
+
+    def get_sampling_priority(self):
+        """
+        Return the sampling priority.
+
+        Return an positive integer. Can also be None when not defined.
+        """
+        with self._lock:
+            return self._sampling_priority
+
+
+    def set_sampled(self, sampled):
+        """
+        Set if the trace is sampled by the client or not.
+
+        If false, the trace won't be flushed to the Agent.
+        """
+        with self._lock:
+            self._sampled = sampled
+
+
+    def get_sampled(self):
         """
         Returns if the ``Context`` contains sampled spans.
         """

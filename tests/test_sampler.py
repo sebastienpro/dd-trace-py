@@ -7,7 +7,8 @@ import threading
 
 from ddtrace.tracer import Tracer
 from ddtrace.span import Span
-from ddtrace.sampler import RateSampler, SAMPLE_RATE_METRIC_KEY
+from ddtrace.sampler import RateSampler
+from ddtrace.constants import SAMPLE_RATE_METRIC_KEY
 from .test_tracer import DummyWriter
 from .util import patch_time
 

@@ -19,11 +19,6 @@ def test_ids():
     eq_(s2.span_id, 2)
     eq_(s2.parent_id, 1)
 
-def test_sampled():
-    s = Span(tracer=None, name="span.test")
-    assert s.sampled
-    assert s.get_sampling_priority() is None
-
 def test_tags():
     s = Span(tracer=None, name="test.span")
     s.set_tag("a", "a")
