@@ -1,0 +1,8 @@
+version: 2
+jobs:
+  build:
+    docker:
+      - image: bemermet/ddtrace-ci
+    steps:
+      - checkout
+      - run: tox -e 'py{27,34,35,36}-tracer'
