@@ -191,15 +191,15 @@ workflows:
       - contrib
       - integration
       - boto
-      - dtracerun
-      - syncio
-      - ylons
-      - iohttp
-      - ornado
-      - ottle
-      - assandra
-      - elery
-      - lasticsearch
-      - alcon
-      - jango
-      - lask
+      - ddtracerun
+      - asyncio
+      - pylons
+      - aiohttp
+      - tornado
+      - bottle
+      - cassandra
+      - celery
+      - elasticsearch
+      - falcon
+      - django
+      - flask
