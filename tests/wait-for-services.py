@@ -45,13 +45,11 @@ def check_cassandra():
     with Cluster(**CASSANDRA_CONFIG).connect() as conn:
         conn.execute("SELECT now() FROM system.local")
 
-
-def check():
-    print("checking services")
-    check_postgres()
-    check_cassandra()
-    print("services checked")
-
-
 if __name__ == '__main__':
-    check()
+    if sys.argv[0] == 'cassandra':
+        check_cassandra()
+    elif sys.argv[0] == 'postgres':
+        check_postgres()
+    else:
+        print("usage: python wait-for-services.py SERVICE_NAME")
+        sys.exit(1)

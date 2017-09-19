@@ -26,6 +26,13 @@ jobs:
   integration:
     docker:
       - image: bemermet/ddtrace-ci
+        env:
+          TEST_DATADOG_INTEGRATION: 1
+      - image: datadog/docker-dd-agent
+        env:
+            - DD_APM_ENABLED=true
+            - DD_BIND_HOST=0.0.0.0
+            - DD_API_KEY=invalid_key_but_this_is_fine
     steps:
       - checkout
       - run: tox -e '{py27,py34,py35,py36}-integration'
@@ -36,7 +43,115 @@ jobs:
     steps:
       - checkout
       - run: tox -e '{py27,py34}-boto'
-      - run: tow -e '{py27,py34}-botocore'
+      - run: tox -e '{py27,py34}-botocore'
+
+  ddtracerun:
+    docker:
+      - image: bemermet/ddtrace-ci
+      - image: redis:3.2
+    steps:
+      - checkout
+      - run: tox -e '{py27,py34,py35,py36}-ddtracerun'
+
+  asyncio:
+    docker:
+      - image: bemermet/ddtrace-ci
+    steps:
+      - checkout
+      - run: tox -e '{py34,py35,py36}-asyncio'
+
+  pylons:
+    docker:
+      - image: bemermet/ddtrace-ci
+    steps:
+      - checkout
+      - run: tox -e '{py27}-pylons'
+
+  aiohttp:
+    docker:
+      - image: bemermet/ddtrace-ci
+    steps:
+      - checkout
+      - run: tox -e '{py34,py35,py36}-aiohttp{12,13,20,21,22}-aiohttp_jinja{012,013}'
+
+  tornado:
+    docker:
+      - image: bemermet/ddtrace-ci
+    steps:
+      - checkout
+      - run: tox -e '{py27}-tornado{40,41,42,43,44}'
+      - run: tox -e '{py27}-tornado{40,41,42,43,44}-futures'
+      - run: tox -e '{py34,py35,py36}-tornado{40,41,42,43,44}'
+
+  bottle:
+    docker:
+      - image: bemermet/ddtrace-ci
+    steps:
+      - checkout
+      - run: tox -e '{py27,py34,py35,py36}-bottle{12}-webtest'
+      - run: tox -e '{py27,py34,py35,py36}-bottle-autopatch{12}-webtest'
+
+  cassandra:
+    docker:
+      - image: bemermet/ddtrace-ci
+        env:
+          - CASS_DRIVER_NO_EXTENSIONS=1
+      - image: cassandra:3.7
+    steps:
+      - checkout
+      - run: tox -e wait cassandra
+      - run: tox -e '{py27,py34,py35,py36}-cassandra{35,36,37,38}'
+
+  celery:
+    docker:
+      - image: bemermet/ddtrace-ci
+      - image: redis:3.2
+    steps:
+      - checkout
+      - run: tox -e '{py27,py34,py35,py36}-celery{31,40}-redis{210}'
+
+  elasticsearch:
+    docker:
+      - image: bemermet/ddtrace-ci
+      - image: elasticsearch:2.3
+    steps:
+      - checkout
+      - run: tox -e '{py27,py34,py35,py36}-elasticsearch{16,17,18,23,24,51,52,53,54}'
+
+  falcon:
+    docker:
+      - image: bemermet/ddtrace-ci
+    steps:
+      - checkout
+      - run: tox -e '{py27,py34,py35,py36}-falcon{10,11,12}'
+      - run: tox -e '{py27,py34,py35,py36}-falcon-autopatch{10,11,12}'
+
+  django:
+    docker:
+      - image: bemermet/ddtrace-ci
+      - image: redis:3.2
+      - image: memcached:1.4
+      - image: datadog/docker-dd-agent
+        env:
+            - DD_APM_ENABLED=true
+            - DD_BIND_HOST=0.0.0.0
+            - DD_API_KEY=invalid_key_but_this_is_fine
+    steps:
+      - checkout
+      - run: tox -e '{py27,py34,py35,py36}-django{18,19,110,111}-djangopylibmc06-djangoredis45-pylibmc-redis{210}-memcached'
+      - run: tox -e '{py27,py34,py35,py36}-django-autopatch{18,19,110,111}-djangopylibmc06-djangoredis45-pylibmc-redis{210}-memcached'
+
+  flask:
+    docker:
+      - image: bemermet/ddtrace-ci
+    steps:
+      - checkout
+      - run: tox -e '{py27,py34,py35,py36}-flask{010,011,012}-blinker'
+      - run: tox -e '{py27,py34,py35,py36}-flask-autopatch{010,011,012}-blinker'
+      - run: tox -e '{py27,py34,py35,py36}-flask{010,011,012}-flaskcache{013}-memcached-redis{210}-blinker'
+      - run: tox -e '{py27,py34,py35,py36}-flask-autopatch{010,011,012}-flaskcache{013}-memcached-redis{210}-blinker'
+      - run: tox -e '{py27}-flask{010,011}-flaskcache{012}-memcached-redis{210}-blinker'
+      - run: tox -e '{py27}-flask-autopatch{010,011}-flaskcache{012}-memcached-redis{210}-blinker'
 
   build:
     docker:
@@ -71,8 +186,20 @@ workflows:
   version: 2
   test:
     jobs:
-      - build
       - redis
       - tracer
       - contrib
       - integration
+      - boto
+      - dtracerun
+      - syncio
+      - ylons
+      - iohttp
+      - ornado
+      - ottle
+      - assandra
+      - elery
+      - lasticsearch
+      - alcon
+      - jango
+      - lask
