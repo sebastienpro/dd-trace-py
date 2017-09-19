@@ -34,7 +34,7 @@ MYSQL_CONFIG = {
 }
 
 REDIS_CONFIG = {
-    'port': int(os.getenv("TEST_REDIS_PORT", 56379)),
+    'port': int(os.getenv("TEST_REDIS_PORT", 6379)),
 }
 
 MONGO_CONFIG = {

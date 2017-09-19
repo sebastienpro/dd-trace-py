@@ -1,8 +1,39 @@
 version: 2
 jobs:
-  build:
+  redis:
+    docker:
+      - image: bemermet/ddtrace-ci
+      - image: redis:3.2
+    steps:
+      - checkout
+      - run: tox -e '{py27,py34,py35,py36}-redis{26,27,28,29,210}'
+
+  tracer:
     docker:
       - image: bemermet/ddtrace-ci
     steps:
       - checkout
-      - run: tox -e 'py{27,34,35,36}-tracer'
+      - run: tox -e '{py27,py34,py35,py36}-tracer'
+
+  contrib:
+    docker:
+      - image: bemermet/ddtrace-ci
+    steps:
+      - checkout
+      - run: tox -e '{py27,py34,py35,py36}-contrib'
+
+  integration:
+    docker:
+      - image: bemermet/ddtrace-ci
+    steps:
+      - checkout
+      - run: tox -e '{py27,py34,py35,py36}-integration'
+
+workflows:
+  version: 2
+  test:
+    jobs:
+      - redis
+      - tracer
+      - contrib
+      - integration
