@@ -6,14 +6,28 @@ jobs:
       - image: bemermet/ddtrace-ci
     steps:
       - checkout
+      - restore_cache:
+          keys:
+              - tox-cache-tracer-{{ checksum "tox.ini" }}
       - run: tox -e '{py27,py34,py35,py36}-tracer'
+      - save_cache:
+          key: tox-cache-tracer-{{ checksum "tox.ini" }}
+          paths:
+            - .tox
 
   contrib:
     docker:
       - image: bemermet/ddtrace-ci
     steps:
       - checkout
+      - restore_cache:
+          keys:
+              - tox-cache-contrib-{{ checksum "tox.ini" }}
       - run: tox -e '{py27,py34,py35,py36}-contrib'
+      - save_cache:
+          key: tox-cache-contrib-{{ checksum "tox.ini" }}
+          paths:
+            - .tox
 
   integration:
     docker:
@@ -27,15 +41,29 @@ jobs:
             - DD_API_KEY=invalid_key_but_this_is_fine
     steps:
       - checkout
+      - restore_cache:
+          keys:
+              - tox-cache-integration-{{ checksum "tox.ini" }}
       - run: tox -e '{py27,py34,py35,py36}-integration'
+      - save_cache:
+          key: tox-cache-integration-{{ checksum "tox.ini" }}
+          paths:
+            - .tox
 
   boto:
     docker:
       - image: bemermet/ddtrace-ci
     steps:
       - checkout
+      - restore_cache:
+          keys:
+              - tox-cache-boto-{{ checksum "tox.ini" }}
       - run: tox -e '{py27,py34}-boto'
       - run: tox -e '{py27,py34}-botocore'
+      - save_cache:
+          key: tox-cache-boto-{{ checksum "tox.ini" }}
+          paths:
+            - .tox
 
   ddtracerun:
     docker:
@@ -43,21 +71,42 @@ jobs:
       - image: redis:3.2
     steps:
       - checkout
+      - restore_cache:
+          keys:
+              - tox-cache-ddtracerun-{{ checksum "tox.ini" }}
       - run: tox -e '{py27,py34,py35,py36}-ddtracerun'
+      - save_cache:
+          key: tox-cache-ddtracerun-{{ checksum "tox.ini" }}
+          paths:
+            - .tox
 
   asyncio:
     docker:
       - image: bemermet/ddtrace-ci
     steps:
       - checkout
+      - restore_cache:
+          keys:
+              - tox-cache-asyncio-{{ checksum "tox.ini" }}
       - run: tox -e '{py34,py35,py36}-asyncio'
+      - save_cache:
+          key: tox-cache-asyncio-{{ checksum "tox.ini" }}
+          paths:
+            - .tox
 
   pylons:
     docker:
       - image: bemermet/ddtrace-ci
     steps:
       - checkout
+      - restore_cache:
+          keys:
+              - tox-cache-pylons-{{ checksum "tox.ini" }}
       - run: tox -e '{py27}-pylons'
+      - save_cache:
+          key: tox-cache-pylons-{{ checksum "tox.ini" }}
+          paths:
+            - .tox
 
   aiohttp:
     docker:
@@ -78,17 +127,31 @@ jobs:
       - image: bemermet/ddtrace-ci
     steps:
       - checkout
+      - restore_cache:
+          keys:
+              - tox-cache-tornado-{{ checksum "tox.ini" }}
       - run: tox -e '{py27}-tornado{40,41,42,43,44}'
       - run: tox -e '{py27}-tornado{40,41,42,43,44}-futures'
       - run: tox -e '{py34,py35,py36}-tornado{40,41,42,43,44}'
+      - save_cache:
+          key: tox-cache-tornado-{{ checksum "tox.ini" }}
+          paths:
+            - .tox
 
   bottle:
     docker:
       - image: bemermet/ddtrace-ci
     steps:
       - checkout
+      - restore_cache:
+          keys:
+              - tox-cache-bottle-{{ checksum "tox.ini" }}
       - run: tox -e '{py27,py34,py35,py36}-bottle{12}-webtest'
       - run: tox -e '{py27,py34,py35,py36}-bottle-autopatch{12}-webtest'
+      - save_cache:
+          key: tox-cache-bottle-{{ checksum "tox.ini" }}
+          paths:
+            - .tox
 
   cassandra:
     docker:
@@ -98,8 +161,15 @@ jobs:
       - image: cassandra:3.7
     steps:
       - checkout
+      - restore_cache:
+          keys:
+              - tox-cache-cassandra-{{ checksum "tox.ini" }}
       - run: tox -e wait cassandra
       - run: tox -e '{py27,py34,py35,py36}-cassandra{35,36,37,38}'
+      - save_cache:
+          key: tox-cache-cassandra-{{ checksum "tox.ini" }}
+          paths:
+            - .tox
 
   celery:
     docker:
@@ -107,7 +177,14 @@ jobs:
       - image: redis:3.2
     steps:
       - checkout
+      - restore_cache:
+          keys:
+              - tox-cache-celery-{{ checksum "tox.ini" }}
       - run: tox -e '{py27,py34,py35,py36}-celery{31,40}-redis{210}'
+      - save_cache:
+          key: tox-cache-celery-{{ checksum "tox.ini" }}
+          paths:
+            - .tox
 
   elasticsearch:
     docker:
@@ -115,15 +192,29 @@ jobs:
       - image: elasticsearch:2.3
     steps:
       - checkout
+      - restore_cache:
+          keys:
+              - tox-cache-elasticsearch-{{ checksum "tox.ini" }}
       - run: tox -e '{py27,py34,py35,py36}-elasticsearch{16,17,18,23,24,51,52,53,54}'
+      - save_cache:
+          key: tox-cache-elasticsearch-{{ checksum "tox.ini" }}
+          paths:
+            - .tox
 
   falcon:
     docker:
       - image: bemermet/ddtrace-ci
     steps:
       - checkout
+      - restore_cache:
+          keys:
+              - tox-cache-falcon-{{ checksum "tox.ini" }}
       - run: tox -e '{py27,py34,py35,py36}-falcon{10,11,12}'
       - run: tox -e '{py27,py34,py35,py36}-falcon-autopatch{10,11,12}'
+      - save_cache:
+          key: tox-cache-falcon-{{ checksum "tox.ini" }}
+          paths:
+            - .tox
 
   django:
     docker:
@@ -137,8 +228,15 @@ jobs:
             - DD_API_KEY=invalid_key_but_this_is_fine
     steps:
       - checkout
+      - restore_cache:
+          keys:
+              - tox-cache-django-{{ checksum "tox.ini" }}
       - run: tox -e '{py27,py34,py35,py36}-django{18,19,110,111}-djangopylibmc06-djangoredis45-pylibmc-redis{210}-memcached'
       - run: tox -e '{py27,py34,py35,py36}-django-autopatch{18,19,110,111}-djangopylibmc06-djangoredis45-pylibmc-redis{210}-memcached'
+      - save_cache:
+          key: tox-cache-django-{{ checksum "tox.ini" }}
+          paths:
+            - .tox
 
   flask:
     docker:
@@ -147,27 +245,48 @@ jobs:
       - image: memcached:1.4
     steps:
       - checkout
+      - restore_cache:
+          keys:
+              - tox-cache-flask-{{ checksum "tox.ini" }}
       - run: tox -e '{py27,py34,py35,py36}-flask{010,011,012}-blinker'
       - run: tox -e '{py27,py34,py35,py36}-flask-autopatch{010,011,012}-blinker'
       - run: tox -e '{py27,py34,py35,py36}-flask{010,011,012}-flaskcache{013}-memcached-redis{210}-blinker'
       - run: tox -e '{py27,py34,py35,py36}-flask-autopatch{010,011,012}-flaskcache{013}-memcached-redis{210}-blinker'
       - run: tox -e '{py27}-flask{010,011}-flaskcache{012}-memcached-redis{210}-blinker'
       - run: tox -e '{py27}-flask-autopatch{010,011}-flaskcache{012}-memcached-redis{210}-blinker'
+      - save_cache:
+          key: tox-cache-flask-{{ checksum "tox.ini" }}
+          paths:
+            - .tox
 
   gevent:
     docker:
       - image: bemermet/ddtrace-ci
     steps:
       - checkout
+      - restore_cache:
+          keys:
+              - tox-cache-gevent-{{ checksum "tox.ini" }}
       - run: tox -e '{py27,py34,py35,py36}-gevent{11,12}'
       - run: tox -e '{py27}-gevent{10}'
+      - save_cache:
+          key: tox-cache-gevent-{{ checksum "tox.ini" }}
+          paths:
+            - .tox
 
   httplib:
     docker:
       - image: bemermet/ddtrace-ci
     steps:
       - checkout
+      - restore_cache:
+          keys:
+              - tox-cache-httplib-{{ checksum "tox.ini" }}
       - run: tox -e '{py27,py34,py35,py36}-httplib'
+      - save_cache:
+          key: tox-cache-httplib-{{ checksum "tox.ini" }}
+          paths:
+            - .tox
 
   mysqlconnector:
     docker:
@@ -180,7 +299,14 @@ jobs:
             - MYSQL_DATABASE=test
     steps:
       - checkout
+      - restore_cache:
+          keys:
+              - tox-cache-mysqlconnector-{{ checksum "tox.ini" }}
       - run: tox -e '{py27,py34,py35,py36}-mysqlconnector{21}'
+      - save_cache:
+          key: tox-cache-mysqlconnector-{{ checksum "tox.ini" }}
+          paths:
+            - .tox
 
   pylibmc:
     docker:
@@ -188,7 +314,14 @@ jobs:
       - image: memcached:1.4
     steps:
       - checkout
+      - restore_cache:
+          keys:
+              - tox-cache-pylibmc-{{ checksum "tox.ini" }}
       - run: tox -e '{py27,py34,py35,py36}-pylibmc{140,150}'
+      - save_cache:
+          key: tox-cache-pylibmc-{{ checksum "tox.ini" }}
+          paths:
+            - .tox
 
   pymongo:
     docker:
@@ -196,22 +329,43 @@ jobs:
       - image: mongo:3.2
     steps:
       - checkout
+      - restore_cache:
+          keys:
+              - tox-cache-pymongo-{{ checksum "tox.ini" }}
       - run: tox -e '{py27,py34,py35,py36}-pymongo{30,31,32,33,34}-mongoengine{011}'
+      - save_cache:
+          key: tox-cache-pymongo-{{ checksum "tox.ini" }}
+          paths:
+            - .tox
 
   pyramid:
     docker:
       - image: bemermet/ddtrace-ci
     steps:
       - checkout
+      - restore_cache:
+          keys:
+              - tox-cache-pyramid-{{ checksum "tox.ini" }}
       - run: tox -e '{py27,py34,py35,py36}-pyramid{17,18}-webtest'
       - run: tox -e '{py27,py34,py35,py36}-pyramid-autopatch{17,18}-webtest'
+      - save_cache:
+          key: tox-cache-pyramid-{{ checksum "tox.ini" }}
+          paths:
+            - .tox
 
   requests:
     docker:
       - image: bemermet/ddtrace-ci
     steps:
       - checkout
+      - restore_cache:
+          keys:
+              - tox-cache-requests-{{ checksum "tox.ini" }}
       - run: tox -e '{py27,py34,py35,py36}-requests{208,209,210,211,212,213}'
+      - save_cache:
+          key: tox-cache-requests-{{ checksum "tox.ini" }}
+          paths:
+            - .tox
 
   sqlalchemy:
     docker:
@@ -229,7 +383,14 @@ jobs:
             - MYSQL_DATABASE=test
     steps:
       - checkout
+      - restore_cache:
+          keys:
+              - tox-cache-sqlalchemy-{{ checksum "tox.ini" }}
       - run: tox -e '{py27,py34,py35,py36}-sqlalchemy{10,11}-psycopg2{27}-mysqlconnector{21}'
+      - save_cache:
+          key: tox-cache-sqlalchemy-{{ checksum "tox.ini" }}
+          paths:
+            - .tox
 
   pychopg:
     docker:
@@ -241,7 +402,14 @@ jobs:
             - POSTGRES_DB=postgres
     steps:
       - checkout
+      - restore_cache:
+          keys:
+              - tox-cache-pychopg-{{ checksum "tox.ini" }}
       - run: tox -e '{py27,py34,py35,py36}-psycopg2{25,26,27}'
+      - save_cache:
+          key: tox-cache-pychopg-{{ checksum "tox.ini" }}
+          paths:
+            - .tox
 
   aiobotocore:
     docker:
@@ -249,7 +417,14 @@ jobs:
       - image: palazzem/moto:1.0.1
     steps:
       - checkout
+      - restore_cache:
+          keys:
+              - tox-cache-aiobotocore-{{ checksum "tox.ini" }}
       - run: tox -e '{py34,py35,py36}-aiobotocore{02,03,04}'
+      - save_cache:
+          key: tox-cache-aiobotocore-{{ checksum "tox.ini" }}
+          paths:
+            - .tox
 
   aiopg:
     docker:
@@ -261,7 +436,14 @@ jobs:
             - POSTGRES_DB=postgres
     steps:
       - checkout
+      - restore_cache:
+          keys:
+              - tox-cache-aiopg-{{ checksum "tox.ini" }}
       - run: tox -e '{py34,py35,py36}-aiopg{012,013}'
+      - save_cache:
+          key: tox-cache-aiopg-{{ checksum "tox.ini" }}
+          paths:
+            - .tox
 
   redis:
     docker:
@@ -269,21 +451,42 @@ jobs:
       - image: redis:3.2
     steps:
       - checkout
+      - restore_cache:
+          keys:
+              - tox-cache-redis-{{ checksum "tox.ini" }}
       - run: tox -e '{py27,py34,py35,py36}-redis{26,27,28,29,210}'
+      - save_cache:
+          key: tox-cache-redis-{{ checksum "tox.ini" }}
+          paths:
+            - .tox
 
   sqlite3:
     docker:
       - image: bemermet/ddtrace-ci
     steps:
       - checkout
+      - restore_cache:
+          keys:
+              - tox-cache-sqlite3-{{ checksum "tox.ini" }}
       - run: tox -e '{py27,py34,py35,py36}-sqlite3'
+      - save_cache:
+          key: tox-cache-sqlite3-{{ checksum "tox.ini" }}
+          paths:
+            - .tox
 
   msgpack:
     docker:
       - image: bemermet/ddtrace-ci
     steps:
       - checkout
+      - restore_cache:
+          keys:
+              - tox-cache-msgpack-{{ checksum "tox.ini" }}
       - run: tox -e '{py27,py34}-msgpack{03,04}'
+      - save_cache:
+          key: tox-cache-msgpack-{{ checksum "tox.ini" }}
+          paths:
+            - .tox
 
         #  build:
         #    docker:
