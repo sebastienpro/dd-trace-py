@@ -15,20 +15,6 @@ jobs:
           paths:
             - .tox
 
-  contrib:
-    docker:
-      - image: bemermet/ddtrace-ci
-    steps:
-      - checkout
-      - restore_cache:
-          keys:
-              - tox-cache-contrib-{{ checksum "tox.ini" }}
-      - run: tox -e '{py27,py34,py35,py36}-contrib'
-      - save_cache:
-          key: tox-cache-contrib-{{ checksum "tox.ini" }}
-          paths:
-            - .tox
-
   integration:
     docker:
       - image: bemermet/ddtrace-ci
@@ -522,7 +508,6 @@ workflows:
   test:
     jobs:
       - tracer
-        #- contrib
       - integration
       - boto
       - ddtracerun
