@@ -144,7 +144,7 @@ jobs:
       - image: bemermet/ddtrace-ci
         env:
           - CASS_DRIVER_NO_EXTENSIONS=1
-      - image: cassandra:3.7
+      - image: cassandra:3.11
     steps:
       - checkout
       - restore_cache:
