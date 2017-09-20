@@ -38,7 +38,7 @@ REDIS_CONFIG = {
 }
 
 MONGO_CONFIG = {
-    'port': int(os.getenv("TEST_MONGO_PORT", 7017)),
+    'port': int(os.getenv("TEST_MONGO_PORT", 27017)),
 }
 
 MEMCACHED_CONFIG = {

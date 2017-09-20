@@ -46,10 +46,13 @@ def check_cassandra():
         conn.execute("SELECT now() FROM system.local")
 
 if __name__ == '__main__':
-    if sys.argv[0] == 'cassandra':
-        check_cassandra()
-    elif sys.argv[0] == 'postgres':
-        check_postgres()
-    else:
-        print("usage: python wait-for-services.py SERVICE_NAME")
-        sys.exit(1)
+    if len(sys.argv) == 2:
+        service = sys.argv[1]
+        if service == 'cassandra':
+            check_cassandra()
+            sys.exit(0)
+        elif service == 'postgres':
+            check_postgres()
+            sys.exit(0)
+    print("usage: python {} SERVICE_NAME".format(sys.argv[0]))
+    sys.exit(1)

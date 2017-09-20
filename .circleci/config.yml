@@ -1,14 +1,6 @@
 version: 2
 
 jobs:
-  redis:
-    docker:
-      - image: bemermet/ddtrace-ci
-      - image: redis:3.2
-    steps:
-      - checkout
-      - run: tox -e '{py27,py34,py35,py36}-redis{26,27,28,29,210}'
-
   tracer:
     docker:
       - image: bemermet/ddtrace-ci
@@ -153,12 +145,68 @@ jobs:
       - run: tox -e '{py27}-flask{010,011}-flaskcache{012}-memcached-redis{210}-blinker'
       - run: tox -e '{py27}-flask-autopatch{010,011}-flaskcache{012}-memcached-redis{210}-blinker'
 
-  build:
+  gevent:
     docker:
       - image: bemermet/ddtrace-ci
-      - image: redis:3.2
-      - image: elasticsearch:2.3
-      - image: cassandra:3.7
+    steps:
+      - checkout
+      - run: tox -e '{py27,py34,py35,py36}-gevent{11,12}'
+      - run: tox -e '{py27}-gevent{10}'
+
+  httplib:
+    docker:
+      - image: bemermet/ddtrace-ci
+    steps:
+      - checkout
+      - run: tox -e '{py27,py34,py35,py36}-httplib'
+
+  mysqlconnector:
+    docker:
+      - image: bemermet/ddtrace-ci
+      - image: mysql:5.7
+        env:
+            - MYSQL_ROOT_PASSWORD=admin
+            - MYSQL_PASSWORD=test
+            - MYSQL_USER=test
+            - MYSQL_DATABASE=test
+    steps:
+      - checkout
+      - run: tox -e '{py27,py34,py35,py36}-mysqlconnector{21}'
+
+  pylibmc:
+    docker:
+      - image: bemermet/ddtrace-ci
+      - image: memcached:1.4
+    steps:
+      - checkout
+      - run: tox -e '{py27,py34,py35,py36}-pylibmc{140,150}'
+
+  pymongo:
+    docker:
+      - image: bemermet/ddtrace-ci
+      - image: mongo:3.2
+    steps:
+      - checkout
+      - run: tox -e '{py27,py34,py35,py36}-pymongo{30,31,32,33,34}-mongoengine{011}'
+
+  pyramid:
+    docker:
+      - image: bemermet/ddtrace-ci
+    steps:
+      - checkout
+      - run: tox -e '{py27,py34,py35,py36}-pyramid{17,18}-webtest'
+      - run: tox -e '{py27,py34,py35,py36}-pyramid-autopatch{17,18}-webtest'
+
+  requests:
+    docker:
+      - image: bemermet/ddtrace-ci
+    steps:
+      - checkout
+      - run: tox -e '{py27,py34,py35,py36}-requests{208,209,210,211,212,213}'
+
+  sqlalchemy:
+    docker:
+      - image: bemermet/ddtrace-ci
       - image: postgres:9.5
         env:
             - POSTGRES_PASSWORD=postgres
@@ -170,25 +218,93 @@ jobs:
             - MYSQL_PASSWORD=test
             - MYSQL_USER=test
             - MYSQL_DATABASE=test
-      - image: mongo:3.2
-      - image: memcached:1.4
-      - image: palazzem/moto:1.0.1
-      - image: datadog/docker-dd-agent
-        env:
-            - DD_APM_ENABLED=true
-            - DD_BIND_HOST=0.0.0.0
-            - DD_API_KEY=invalid_key_but_this_is_fine
     steps:
       - checkout
-      - run: tox
+      - run: tox -e '{py27,py34,py35,py36}-sqlalchemy{10,11}-psycopg2{27}-mysqlconnector{21}'
+
+  pychopg:
+    docker:
+      - image: bemermet/ddtrace-ci
+      - image: postgres:9.5
+        env:
+            - POSTGRES_PASSWORD=postgres
+            - POSTGRES_USER=postgres
+            - POSTGRES_DB=postgres
+    steps:
+      - checkout
+      - run: tox -e '{py27,py34,py35,py36}-psycopg2{25,26,27}'
+
+  aiobotocore:
+    docker:
+      - image: bemermet/ddtrace-ci
+    steps:
+      - checkout
+      - run: tox -e '{py34,py35,py36}-aiobotocore{02,03,04}'
+
+  aiopg:
+    docker:
+      - image: bemermet/ddtrace-ci
+    steps:
+      - checkout
+      - run: tox -e '{py34,py35,py36}-aiopg{012,013}'
+
+  redis:
+    docker:
+      - image: bemermet/ddtrace-ci
+      - image: redis:3.2
+    steps:
+      - checkout
+      - run: tox -e '{py27,py34,py35,py36}-redis{26,27,28,29,210}'
+
+  sqlite3:
+    docker:
+      - image: bemermet/ddtrace-ci
+    steps:
+      - checkout
+      - run: tox -e '{py27,py34,py35,py36}-sqlite3'
+
+  msgpack:
+    docker:
+      - image: bemermet/ddtrace-ci
+    steps:
+      - checkout
+      - run: tox -e '{py27,py34}-msgpack{03,04}'
+
+        #  build:
+        #    docker:
+        #      - image: bemermet/ddtrace-ci
+        #      - image: redis:3.2
+        #      - image: elasticsearch:2.3
+        #      - image: cassandra:3.7
+        #      - image: postgres:9.5
+        #        env:
+        #            - POSTGRES_PASSWORD=postgres
+        #            - POSTGRES_USER=postgres
+        #            - POSTGRES_DB=postgres
+        #      - image: mysql:5.7
+        #        env:
+        #            - MYSQL_ROOT_PASSWORD=admin
+        #            - MYSQL_PASSWORD=test
+        #            - MYSQL_USER=test
+        #            - MYSQL_DATABASE=test
+        #      - image: mongo:3.2
+        #      - image: memcached:1.4
+        #      - image: palazzem/moto:1.0.1
+        #      - image: datadog/docker-dd-agent
+        #        env:
+        #            - DD_APM_ENABLED=true
+        #            - DD_BIND_HOST=0.0.0.0
+        #            - DD_API_KEY=invalid_key_but_this_is_fine
+        #    steps:
+        #      - checkout
+        #      - run: tox
 
 workflows:
   version: 2
   test:
     jobs:
-      - redis
       - tracer
-      - contrib
+        #- contrib
       - integration
       - boto
       - ddtracerun
@@ -203,3 +319,17 @@ workflows:
       - falcon
       - django
       - flask
+      - gevent
+      - httplib
+      - mysqlconnector
+      - pylibmc
+      - pymongo
+      - pyramid
+      - requests
+      - sqlalchemy
+      - pychopg
+      - aiobotocore
+      - aiopg
+      - redis
+      - sqlite3
+      - msgpack

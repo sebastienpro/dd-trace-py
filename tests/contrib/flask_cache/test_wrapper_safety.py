@@ -171,7 +171,7 @@ class FlaskCacheWrapperTest(unittest.TestCase):
         app = Flask(__name__)
         config = {
             "CACHE_TYPE": "redis",
-            "CACHE_REDIS_PORT": 22230,
+            "CACHE_REDIS_PORT": 2230,
         }
         cache = Cache(app, config=config)
 
@@ -180,7 +180,7 @@ class FlaskCacheWrapperTest(unittest.TestCase):
             cache.get(u"á_complex_operation")
 
         # ensure that the error is not caused by our tracer
-        ok_("localhost:22230. Connection refused." in ex.exception.args[0])
+        ok_("localhost:2230. Connection refused." in ex.exception.args[0])
         spans = writer.pop()
         # an error trace must be sent
         eq_(len(spans), 1)
@@ -191,7 +191,7 @@ class FlaskCacheWrapperTest(unittest.TestCase):
         eq_(span.span_type, "cache")
         eq_(span.meta[CACHE_BACKEND], "redis")
         eq_(span.meta[net.TARGET_HOST], 'localhost')
-        eq_(span.meta[net.TARGET_PORT], '22230')
+        eq_(span.meta[net.TARGET_PORT], '2230')
         eq_(span.error, 1)
 
     def test_memcached_cache_tracing_with_a_wrong_connection(self):
@@ -205,7 +205,7 @@ class FlaskCacheWrapperTest(unittest.TestCase):
         app = Flask(__name__)
         config = {
             "CACHE_TYPE": "memcached",
-            "CACHE_MEMCACHED_SERVERS": ['localhost:22230'],
+            "CACHE_MEMCACHED_SERVERS": ['localhost:2230'],
         }
         cache = Cache(app, config=config)
 
@@ -226,7 +226,7 @@ class FlaskCacheWrapperTest(unittest.TestCase):
         eq_(span.span_type, "cache")
         eq_(span.meta[CACHE_BACKEND], "memcached")
         eq_(span.meta[net.TARGET_HOST], 'localhost')
-        eq_(span.meta[net.TARGET_PORT], '22230')
+        eq_(span.meta[net.TARGET_PORT], '2230')
 
         # the pylibmc backend raises an exception and memcached backend does
         # not, so don't test anything about the status.
