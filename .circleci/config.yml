@@ -64,7 +64,14 @@ jobs:
       - image: bemermet/ddtrace-ci
     steps:
       - checkout
+      - restore_cache:
+          keys:
+              - tox-cache-aiohttp-{{ checksum "tox.ini" }}
       - run: tox -e '{py34,py35,py36}-aiohttp{12,13,20,21,22}-aiohttp_jinja{012,013}'
+      - save_cache:
+          key: tox-cache-aiohttp-{{ checksum "tox.ini" }}
+          paths:
+            - .tox
 
   tornado:
     docker:
@@ -136,6 +143,8 @@ jobs:
   flask:
     docker:
       - image: bemermet/ddtrace-ci
+      - image: redis:3.2
+      - image: memcached:1.4
     steps:
       - checkout
       - run: tox -e '{py27,py34,py35,py36}-flask{010,011,012}-blinker'
@@ -237,6 +246,7 @@ jobs:
   aiobotocore:
     docker:
       - image: bemermet/ddtrace-ci
+      - image: palazzem/moto:1.0.1
     steps:
       - checkout
       - run: tox -e '{py34,py35,py36}-aiobotocore{02,03,04}'
@@ -244,6 +254,11 @@ jobs:
   aiopg:
     docker:
       - image: bemermet/ddtrace-ci
+      - image: postgres:9.5
+        env:
+            - POSTGRES_PASSWORD=postgres
+            - POSTGRES_USER=postgres
+            - POSTGRES_DB=postgres
     steps:
       - checkout
       - run: tox -e '{py34,py35,py36}-aiopg{012,013}'
