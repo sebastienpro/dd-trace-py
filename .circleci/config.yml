@@ -291,6 +291,7 @@ jobs:
       - restore_cache:
           keys:
               - tox-cache-mysqlconnector-{{ checksum "tox.ini" }}
+      - run: tox -e 'wait' mysql
       - run: tox -e '{py27,py34,py35,py36}-mysqlconnector{21}'
       - save_cache:
           key: tox-cache-mysqlconnector-{{ checksum "tox.ini" }}
@@ -476,35 +477,6 @@ jobs:
           key: tox-cache-msgpack-{{ checksum "tox.ini" }}
           paths:
             - .tox
-
-        #  build:
-        #    docker:
-        #      - image: bemermet/ddtrace-ci
-        #      - image: redis:3.2
-        #      - image: elasticsearch:2.3
-        #      - image: cassandra:3.7
-        #      - image: postgres:9.5
-        #        env:
-        #            - POSTGRES_PASSWORD=postgres
-        #            - POSTGRES_USER=postgres
-        #            - POSTGRES_DB=postgres
-        #      - image: mysql:5.7
-        #        env:
-        #            - MYSQL_ROOT_PASSWORD=admin
-        #            - MYSQL_PASSWORD=test
-        #            - MYSQL_USER=test
-        #            - MYSQL_DATABASE=test
-        #      - image: mongo:3.2
-        #      - image: memcached:1.4
-        #      - image: palazzem/moto:1.0.1
-        #      - image: datadog/docker-dd-agent
-        #        env:
-        #            - DD_APM_ENABLED=true
-        #            - DD_BIND_HOST=0.0.0.0
-        #            - DD_API_KEY=invalid_key_but_this_is_fine
-        #    steps:
-        #      - checkout
-        #      - run: tox
 
 workflows:
   version: 2

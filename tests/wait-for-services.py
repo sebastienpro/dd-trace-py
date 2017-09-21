@@ -2,10 +2,11 @@ import sys
 import time
 import traceback
 
+import mysql.connector
 from psycopg2 import connect, OperationalError
 from cassandra.cluster import Cluster, NoHostAvailable
 
-from contrib.config import POSTGRES_CONFIG, CASSANDRA_CONFIG
+from contrib.config import POSTGRES_CONFIG, CASSANDRA_CONFIG, MYSQL_CONFIG
 
 
 def try_until_timeout(exception):
@@ -45,6 +46,14 @@ def check_cassandra():
     with Cluster(**CASSANDRA_CONFIG).connect() as conn:
         conn.execute("SELECT now() FROM system.local")
 
+@try_until_timeout(Exception)
+def check_mysql():
+    conn = mysql.connector.connect(**MYSQL_CONFIG)
+    try:
+        conn.cursor().execute("SELECT 1;")
+    finally:
+        conn.close()
+
 if __name__ == '__main__':
     if len(sys.argv) == 2:
         service = sys.argv[1]
@@ -53,6 +62,9 @@ if __name__ == '__main__':
             sys.exit(0)
         elif service == 'postgres':
             check_postgres()
+            sys.exit(0)
+        elif service == 'mysql':
+            check_mysql()
             sys.exit(0)
     print("usage: python {} SERVICE_NAME".format(sys.argv[0]))
     sys.exit(1)
