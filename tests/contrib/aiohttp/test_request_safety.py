@@ -78,6 +78,7 @@ class TestAiohttpSafety(TraceTestCase):
 
         # the trace is wrong but the Context is finished
         traces = self.tracer.writer.pop_traces()
+        print(traces)
         eq_(1, len(traces))
         eq_(10, len(traces[0]))
         eq_(0, len(ctx._trace))

@@ -521,9 +521,6 @@ workflows:
   version: 2
   test:
     jobs:
-      - deploy-dev:
-          requires:
-            - redis
       - tracer
       - integration
       - boto
@@ -553,17 +550,20 @@ workflows:
       - redis
       - sqlite3
       - msgpack
-        #type: approval
-        #        filters:
-        #          branches:
-        #            only: /(master)/
-            #      - deploy-experimental:
-            #        type: approval
-            #        filters:
-            #          branches:
-            #            only: /(develop)/
-            #      - deploy-unstable:
-            #        type: approval
-            #        filters:
-            #          tags:
-            #            only: /v[0-9]+(\.[0-9]+)*/
+      - deploy-dev:
+          requires:
+            - redis
+          type: approval
+          filters:
+            branches:
+              only: /(master)/
+      - deploy-experimental:
+          type: approval
+          filters:
+            branches:
+              only: /(develop)/
+      - deploy-unstable:
+          type: approval
+          filters:
+            tags:
+              only: /v[0-9]+(\.[0-9]+)*/
