@@ -550,5 +550,4 @@ workflows:
       - redis
       - sqlite3
       - msgpack
-      - deploy-dev:
-        type: approval
+      - deploy-dev
