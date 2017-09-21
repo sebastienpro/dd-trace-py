@@ -1,12 +1,13 @@
 FROM buildpack-deps:xenial
 
-RUN apt-get update
-# Install libmemcached (needed for pylibmc)
-RUN apt-get install -y --no-install-recommends libmemcached-dev
-# Install locale-gen 
-RUN apt-get install -y --no-install-recommends locales
-RUN rm -rf /var/lib/apt/lists/*
-
+# Install required packages
+RUN set -ex; \
+        apt-get update; \
+        apt-get install -y --no-install-recommends \
+            libmemcached-dev \
+            locales \
+            jq; \
+        rm -rf /var/lib/apt/lists/*;
 
 # If we don't set a locale supporting UTF8 the installation of some python
 # packages fails

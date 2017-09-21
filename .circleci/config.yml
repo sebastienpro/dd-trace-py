@@ -9,7 +9,11 @@ jobs:
       - restore_cache:
           keys:
               - tox-cache-flake8-{{ checksum "tox.ini" }}
-      - run: tox -e 'flake8'
+      - run: tox -e 'flake8' --result-json /tmp/$CIRCLE_JOB.results
+      - persist_to_workspace:
+          root: /tmp
+          paths:
+            - $CIRCLE_JOB.results
       - save_cache:
           key: tox-cache-flake8-{{ checksum "tox.ini" }}
           paths:
@@ -23,7 +27,11 @@ jobs:
       - restore_cache:
           keys:
               - tox-cache-tracer-{{ checksum "tox.ini" }}
-      - run: tox -e '{py27,py34,py35,py36}-tracer'
+      - run: tox -e '{py27,py34,py35,py36}-tracer' --result-json /tmp/$CIRCLE_JOB.results
+      - persist_to_workspace:
+          root: /tmp
+          paths:
+            - $CIRCLE_JOB.results
       - save_cache:
           key: tox-cache-tracer-{{ checksum "tox.ini" }}
           paths:
@@ -44,7 +52,12 @@ jobs:
       - restore_cache:
           keys:
               - tox-cache-integration-{{ checksum "tox.ini" }}
-      - run: tox -e '{py27,py34,py35,py36}-integration'
+      - run: tox -e '{py27,py34,py35,py36}-integration' --result-json /tmp/$CIRCLE_JOB.results
+      - persist_to_workspace:
+          root: /tmp
+          paths:
+            - $CIRCLE_JOB.results
+
       - save_cache:
           key: tox-cache-integration-{{ checksum "tox.ini" }}
           paths:
@@ -493,6 +506,7 @@ jobs:
             - .tox
 
   deploy_dev:
+    # build only the nightly package
     docker:
       - image: circleci/python:3.6
     steps:
@@ -501,6 +515,7 @@ jobs:
       - run: S3_DIR=trace-dev rake release:wheel
 
   deploy_experimental:
+    # build the develop branch releasing development docs
     docker:
       - image: circleci/python:3.6
     steps:
@@ -510,6 +525,7 @@ jobs:
       - run: S3_DIR=trace-dev rake release:docs
 
   deploy_unstable:
+    # nullify VERSION_SUFFIX to deploy the package with its public version
     docker:
       - image: circleci/python:3.6
     steps:
@@ -519,9 +535,12 @@ jobs:
 
   wait_all_tests:
     docker:
-      - image: busybox
+      - image: circleci/python:3.6
     steps:
-      - run: echo "Hello World"
+      - attach_workspace:
+          at: /tmp/workspace
+      - run: ls /tmp/workspace/*
+      - run: cat /tmp/workspace/*
 
 workflows:
   version: 2
