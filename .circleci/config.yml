@@ -492,15 +492,15 @@ jobs:
           paths:
             - .tox
 
-  deploy-dev:
+  deploy_dev:
     docker:
       - image: circleci/python:3.6
     steps:
       - checkout
-      # - run: pip install mkwheelhouse sphinx
-      # - run: S3_DIR=trace-dev rake release:wheel
+      - run: pip install mkwheelhouse sphinx
+      - run: S3_DIR=trace-dev rake release:wheel
 
-  deploy-experimental:
+  deploy_experimental:
     docker:
       - image: circleci/python:3.6
     steps:
@@ -509,7 +509,7 @@ jobs:
       - run: S3_DIR=trace-dev rake release:wheel
       - run: S3_DIR=trace-dev rake release:docs
 
-  deploy-unstable:
+  deploy_unstable:
     docker:
       - image: circleci/python:3.6
     steps:
@@ -517,10 +517,17 @@ jobs:
       - run: pip install mkwheelhouse sphinx
       - run: S3_DIR=trace-dev rake release:wheel
 
+  wait_all_tests:
+    docker:
+      - image: busybox
+    steps:
+      - run: echo "Hello World"
+
 workflows:
   version: 2
   test:
     jobs:
+      - flake8
       - tracer
       - integration
       - boto
@@ -550,19 +557,55 @@ workflows:
       - redis
       - sqlite3
       - msgpack
-      - deploy-dev:
+      - wait_all_tests:
           requires:
+            - flake8
+            - tracer
+            - integration
+            - boto
+            - ddtracerun
+            - asyncio
+            - pylons
+            - aiohttp
+            - tornado
+            - bottle
+            - cassandra
+            - celery
+            - elasticsearch
+            - falcon
+            - django
+            - flask
+            - gevent
+            - httplib
+            - mysqlconnector
+            - pylibmc
+            - pymongo
+            - pyramid
+            - requests
+            - sqlalchemy
+            - pychopg
+            - aiobotocore
+            - aiopg
             - redis
+            - sqlite3
+            - msgpack
+      - deploy_dev:
+          requires:
+            - wait_all_tests
           type: approval
           filters:
             branches:
               only: /(master)/
-      - deploy-experimental:
+      - deploy_experimental:
+          requires:
+            - wait_all_tests
           type: approval
           filters:
             branches:
               only: /(develop)/
-      - deploy-unstable:
+      - deploy_unstable:
+          requires:
+            - wait_all_tests
           type: approval
           filters:
             tags:
