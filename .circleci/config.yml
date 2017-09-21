@@ -497,8 +497,8 @@ jobs:
       - image: circleci/python:3.6
     steps:
       - checkout
-      - run: pip install mkwheelhouse sphinx
-      - run: S3_DIR=trace-dev rake release:wheel
+      # - run: pip install mkwheelhouse sphinx
+      # - run: S3_DIR=trace-dev rake release:wheel
 
   deploy-experimental:
     docker:
@@ -552,6 +552,3 @@ workflows:
       - msgpack
       - deploy-dev:
         type: approval
-        filters:
-          branches:
-            only: /(master)/
