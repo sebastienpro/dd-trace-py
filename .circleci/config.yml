@@ -550,11 +550,13 @@ workflows:
       - redis
       - sqlite3
       - msgpack
-      - deploy-dev:
+      - deploydev:
+        requires:
+          - redis
         #type: approval
-        filters:
-          branches:
-            only: /(master)/
+        #        filters:
+        #          branches:
+        #            only: /(master)/
             #      - deploy-experimental:
             #        type: approval
             #        filters:
