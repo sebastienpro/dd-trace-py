@@ -1,6 +1,20 @@
 version: 2
 
 jobs:
+  flake8:
+    docker:
+      - image: bemermet/ddtrace-ci
+    steps:
+      - checkout
+      - restore_cache:
+          keys:
+              - tox-cache-flake8-{{ checksum "tox.ini" }}
+      - run: tox -e 'flake8'
+      - save_cache:
+          key: tox-cache-flake8-{{ checksum "tox.ini" }}
+          paths:
+            - .tox
+
   tracer:
     docker:
       - image: bemermet/ddtrace-ci
