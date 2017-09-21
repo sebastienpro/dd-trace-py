@@ -9,11 +9,11 @@ jobs:
       - restore_cache:
           keys:
               - tox-cache-flake8-{{ checksum "tox.ini" }}
-      - run: tox -e 'flake8' --result-json /tmp/tracer.results
+      - run: tox -e 'flake8' --result-json /tmp/flake8.results
       - persist_to_workspace:
           root: /tmp
           paths:
-            - tracer.results
+            - flake8.results
       - save_cache:
           key: tox-cache-flake8-{{ checksum "tox.ini" }}
           paths:
