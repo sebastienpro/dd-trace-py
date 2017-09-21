@@ -9,11 +9,11 @@ jobs:
       - restore_cache:
           keys:
               - tox-cache-flake8-{{ checksum "tox.ini" }}
-      - run: tox -e 'flake8' --result-json /tmp/$CIRCLE_JOB.results
+      - run: tox -e 'flake8' --result-json /tmp/tracer.results
       - persist_to_workspace:
           root: /tmp
           paths:
-            - $CIRCLE_JOB.results
+            - tracer.results
       - save_cache:
           key: tox-cache-flake8-{{ checksum "tox.ini" }}
           paths:
@@ -27,11 +27,11 @@ jobs:
       - restore_cache:
           keys:
               - tox-cache-tracer-{{ checksum "tox.ini" }}
-      - run: tox -e '{py27,py34,py35,py36}-tracer' --result-json /tmp/$CIRCLE_JOB.results
+      - run: tox -e '{py27,py34,py35,py36}-tracer' --result-json /tmp/tracer.results
       - persist_to_workspace:
           root: /tmp
           paths:
-            - $CIRCLE_JOB.results
+            - tracer.results
       - save_cache:
           key: tox-cache-tracer-{{ checksum "tox.ini" }}
           paths:
@@ -52,11 +52,11 @@ jobs:
       - restore_cache:
           keys:
               - tox-cache-integration-{{ checksum "tox.ini" }}
-      - run: tox -e '{py27,py34,py35,py36}-integration' --result-json /tmp/$CIRCLE_JOB.results
+      - run: tox -e '{py27,py34,py35,py36}-integration' --result-json /tmp/integration.results
       - persist_to_workspace:
           root: /tmp
           paths:
-            - $CIRCLE_JOB.results
+            - integration.results
 
       - save_cache:
           key: tox-cache-integration-{{ checksum "tox.ini" }}
