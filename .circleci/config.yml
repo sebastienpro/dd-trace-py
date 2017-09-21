@@ -144,7 +144,10 @@ jobs:
       - image: bemermet/ddtrace-ci
         env:
           - CASS_DRIVER_NO_EXTENSIONS=1
-      - image: cassandra:3.11
+      - image: cassandra:3.7
+        env:
+          - MAX_HEAP_SIZE=1024M
+          - HEAP_NEWSIZE=400M
     steps:
       - checkout
       - restore_cache:
