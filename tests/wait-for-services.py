@@ -55,16 +55,14 @@ def check_mysql():
         conn.close()
 
 if __name__ == '__main__':
-    if len(sys.argv) == 2:
-        service = sys.argv[1]
-        if service == 'cassandra':
-            check_cassandra()
-            sys.exit(0)
-        elif service == 'postgres':
-            check_postgres()
-            sys.exit(0)
-        elif service == 'mysql':
-            check_mysql()
-            sys.exit(0)
-    print("usage: python {} SERVICE_NAME".format(sys.argv[0]))
-    sys.exit(1)
+    check_functions = {
+        'cassandra': check_cassandra,
+        'postgres': check_postgres,
+        'mysql': check_mysql
+    }
+    if len(sys.argv) > 2:
+        for service in sys.argv[1:]:
+            check_functions[service]()
+    else:
+        print("usage: python {} SERVICE_NAME".format(sys.argv[0]))
+        sys.exit(1)

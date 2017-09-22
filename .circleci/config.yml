@@ -496,6 +496,7 @@ jobs:
       - restore_cache:
           keys:
               - tox-cache-sqlalchemy-{{ checksum "tox.ini" }}
+      - run: tox -e 'wait' postgres mysql
       - run: tox -e '{py27,py34,py35,py36}-sqlalchemy{10,11}-psycopg2{27}-mysqlconnector{21}' --result-json /tmp/sqlalchemy.results
       - persist_to_workspace:
           root: /tmp
@@ -519,6 +520,7 @@ jobs:
       - restore_cache:
           keys:
               - tox-cache-pycopg-{{ checksum "tox.ini" }}
+      - run: tox -e 'wait' postgres
       - run: tox -e '{py27,py34,py35,py36}-psycopg2{25,26,27}' --result-json /tmp/psycopg.results
       - persist_to_workspace:
           root: /tmp
@@ -561,6 +563,7 @@ jobs:
       - restore_cache:
           keys:
               - tox-cache-aiopg-{{ checksum "tox.ini" }}
+      - run: tox -e 'wait' postgres
       - run: tox -e '{py34,py35,py36}-aiopg{012,013}' --result-json /tmp/aiopg.results
       - persist_to_workspace:
           root: /tmp
