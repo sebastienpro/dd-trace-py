@@ -732,7 +732,7 @@ workflows:
             - pyramid
             - requests
             - sqlalchemy
-            - pychopg
+            - psycopg
             - aiobotocore
             - aiopg
             - redis
