@@ -667,7 +667,7 @@ jobs:
         # list all executed test
       - run: jq -s ".[]|.testenvs|keys|.[]" /tmp/workspace/* | grep -v GLOB | sed 's/"//g' | sort | uniq | tee all_executed_tests
         # list all tests in tox.ini
-      - run: tox -l | sort > all_tests
+      - run: tox -l | grep -v "^wait$" | sort > all_tests
         # checks that all tests were executed
       - run: diff all_tests all_executed_tests
 
