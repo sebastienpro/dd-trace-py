@@ -630,3 +630,7 @@ workflows:
           filters:
             tags:
               only: /v[0-9]+(\.[0-9]+)*/
+            # By default the job is run for all branches so we need to
+            # explicitely ignore all branches
+            branches:
+              ignore: /.*/
