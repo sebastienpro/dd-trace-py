@@ -660,9 +660,17 @@ jobs:
     steps:
       - attach_workspace:
           at: /tmp/workspace
-      - run: echo $CIRCLE_TAG
+      - checkout
       - run: ls /tmp/workspace/*
-      - run: cat /tmp/workspace/*
+        # debug: shows how many time each test was executed
+      - run: jq -s ".[]|.testenvs|keys|.[]" toxout secondoutput | grep -v GLOB | sed 's/"//g' | sort | uniq -c | sort -rn
+        # list all executed test
+      - run: jq -s ".[]|.testenvs|keys|.[]" toxout secondoutput | grep -v GLOB | sed 's/"//g' | sort | uniq | tee all_executed_tests
+        # list all tests in tox.ini
+      - run: tox -l | sort > all_tests
+        # checks that all tests were executed
+      - run: diff all_tests all_executed_tests
+
 
 workflows:
   version: 2
