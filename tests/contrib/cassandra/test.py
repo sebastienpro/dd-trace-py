@@ -123,6 +123,29 @@ class CassandraBase(object):
         span = getattr(future, '_ddtrace_current_span', None)
         ok_(span is None)
 
+    def test_concurrent_queries(self):
+        " Make sure the causality is right for concurent asynchronous queries "
+        session, writer = self._traced_session()
+        events = []
+        for i in range(20):
+            event = Event()
+            future = session.execute_async(self.TEST_QUERY)
+            def callback(event, results):
+                event.set()
+            from functools import partial
+            future.add_callback(partial(callback, event))
+            events.append(event)
+        for event in events:
+            event.wait()
+
+        spans = writer.pop()
+        assert spans, spans
+
+        eq_(len(spans), 20)
+
+        for span in spans:
+            eq_(span.parent_id, None)
+
     def test_paginated_query(self):
         session, writer = self._traced_session()
         statement = SimpleStatement(self.TEST_QUERY_PAGINATED, fetch_size=1)
@@ -140,6 +163,7 @@ class CassandraBase(object):
 
         for i in range(4):
             query = spans[i]
+            eq_(query.parent_id, None)
             eq_(query.service, self.TEST_SERVICE)
             eq_(query.resource, self.TEST_QUERY_PAGINATED)
             eq_(query.span_type, cassx.TYPE)
