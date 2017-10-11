@@ -78,8 +78,7 @@ class Tracer(object):
         """Returns the current Tracer Context Provider"""
         return self._context_provider
 
-    def configure(self, enabled=None, hostname=None, port=None,
-                  sampler=None, priority_sampler=None,
+    def configure(self, enabled=None, hostname=None, port=None, sampler=None,
                   context_provider=None, wrap_executor=None, priority_sampling=None,
                   settings=None):
         """
@@ -91,7 +90,6 @@ class Tracer(object):
         :param str hostname: Hostname running the Trace Agent
         :param int port: Port of the Trace Agent
         :param object sampler: A custom Sampler instance, locally deciding to totally drop the trace or not.
-        :param object priority_sampler: A custom Sampler instance, taking the priority sampling decision.
         :param object context_provider: The ``ContextProvider`` that will be used to retrieve
             automatically the current call context. This is an advanced option that usually
             doesn't need to be changed from the default value
@@ -111,14 +109,11 @@ class Tracer(object):
         if sampler is not None:
             self.sampler = sampler
 
-        if priority_sampling and priority_sampler is None:
+        if priority_sampling:
             self.priority_sampler = RateByServiceSampler()
 
-        if priority_sampler is not None:
-            self.priority_sampler = priority_sampler
-
         if hostname is not None or port is not None or filters is not None or \
-                priority_sampler is not None or priority_sampling is not None:
+                priority_sampling is not None:
             self.writer = AgentWriter(
                 hostname or self.DEFAULT_HOSTNAME,
                 port or self.DEFAULT_PORT,

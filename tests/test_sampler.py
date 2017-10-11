@@ -2,8 +2,6 @@ from __future__ import division
 
 import unittest
 import random
-import time
-import threading
 
 from ddtrace.tracer import Tracer
 from ddtrace.span import Span
@@ -69,7 +67,8 @@ class RateByServiceSamplerTest(unittest.TestCase):
 
         for sample_rate in [0.1, 0.25, 0.5, 1]:
             tracer = Tracer()
-            tracer.configure(sampler=AllSampler(), priority_sampler=RateByServiceSampler(sample_rate))
+            tracer.configure(sampler=AllSampler(), priority_sampling=True)
+            tracer.priority_sampler.set_sample_rate(sample_rate)
             tracer.writer = writer
 
             random.seed(1234)
@@ -103,8 +102,8 @@ class RateByServiceSamplerTest(unittest.TestCase):
         writer = DummyWriter()
 
         tracer = Tracer()
-        priority_sampler = RateByServiceSampler()
-        tracer.configure(sampler=AllSampler(), priority_sampler=priority_sampler)
+        tracer.configure(sampler=AllSampler(), priority_sampling=True)
+        priority_sampler = tracer.priority_sampler
         tracer.writer = writer
         keys = list(cases)
         for k in keys:
