@@ -33,10 +33,12 @@ def trace_middleware(app, handler):
 
         context = tracer.get_call_context()
 
-        # Create a new context based on the propagated information
+        # Create a new context based on the propagated information.
         # Do not fill context with distributed sampling if the tracer is disabled
         # because the would call the callee to generate references to data which
         # has never been sent to agent.
+        # [TODO:christian] this is quite generic and applies to any similar library so
+        # at some point we should have some shared code which populates context from headers.
         if tracer.enabled and distributed_tracing:
             trace_id = int(request.headers.get(PARENT_TRACE_HEADER_ID, 0))
             parent_span_id = int(request.headers.get(PARENT_SPAN_HEADER_ID, 0))
