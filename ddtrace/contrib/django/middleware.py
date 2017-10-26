@@ -69,6 +69,7 @@ class TraceExceptionMiddleware(InstrumentationMixin):
             span = _get_req_span(request)
             if span:
                 span.set_tag(http.STATUS_CODE, '500')
+                span.set_tag('django.request.full_path', request.get_full_path())
                 span.set_traceback() # will set the exception info
         except Exception:
             log.debug("error processing exception", exc_info=True)
