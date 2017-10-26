@@ -90,6 +90,7 @@ class TraceMiddleware(InstrumentationMixin):
             )
 
             span.set_tag(http.METHOD, request.method)
+            span.set_tag('http.host', request.get_host())
             span.set_tag(http.URL, request.get_full_path())
             _set_req_span(request, span)
         except Exception:
