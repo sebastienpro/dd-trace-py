@@ -90,7 +90,7 @@ class TraceMiddleware(InstrumentationMixin):
             )
 
             span.set_tag(http.METHOD, request.method)
-            span.set_tag(http.URL, request.path)
+            span.set_tag(http.URL, request.get_full_path())
             _set_req_span(request, span)
         except Exception:
             log.debug('error tracing request', exc_info=True)
