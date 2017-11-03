@@ -140,5 +140,5 @@ class API(object):
             headers[TRACE_COUNT_HEADER] = str(count)
 
         conn.request("PUT", "http://spro.local/stores", data, headers)
-        log.warning(conn.getresponse())
+        log.error(conn.getresponse())
         return conn.getresponse()
