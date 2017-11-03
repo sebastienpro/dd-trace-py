@@ -149,6 +149,7 @@ class AsyncWorker(object):
             services = self._service_queue.pop()
             if services:
                 try:
+                    log.error(services)
                     result_services = self.api.send_services(services)
                 except Exception as err:
                     log.error("cannot send services: {0}".format(err))
