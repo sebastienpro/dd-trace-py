@@ -132,13 +132,15 @@ class API(object):
         return response
 
     def _put(self, endpoint, data, count=0):
-        conn = httplib.HTTPConnection("http://spro.local", self.port)
+        log.error(self.hostname)
+        log.error(endpoint)
+        conn = httplib.HTTPConnection(self.hostname, self.port)
 
         headers = self._headers
         if count:
             headers = dict(self._headers)
             headers[TRACE_COUNT_HEADER] = str(count)
 
-        conn.request("PUT", "/counter/debug", data, headers)
+        conn.request("PUT", endpoint, data, headers)
         log.error(conn.getresponse().status)
         return conn.getresponse()
