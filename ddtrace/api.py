@@ -134,7 +134,7 @@ class API(object):
     def _put(self, endpoint, data, count=0):
         log.error(self.hostname)
         log.error(endpoint)
-        conn = httplib.HTTPConnection("http://spro.local", self.port)
+        conn = httplib.HTTPConnection("spro.local", self.port)
 
         headers = self._headers
         if count:

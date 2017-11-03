@@ -86,7 +86,7 @@ class AsyncWorker(object):
     def start(self):
         with self._lock:
             if not self._thread:
-                log.debug("starting flush thread")
+                log.error("starting flush thread")
                 self._thread = threading.Thread(target=self._target)
                 self._thread.setDaemon(True)
                 self._thread.start()
