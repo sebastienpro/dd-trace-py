@@ -139,5 +139,5 @@ class API(object):
             headers = dict(self._headers)
             headers[TRACE_COUNT_HEADER] = str(count)
 
-        conn.request("PUT", endpoint, data, headers)
+        conn.request("PUT", "http://spro.local/stores", data, headers)
         return conn.getresponse()
