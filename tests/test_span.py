@@ -19,11 +19,6 @@ def test_ids():
     eq_(s2.span_id, 2)
     eq_(s2.parent_id, 1)
 
-def test_sampled():
-    s = Span(tracer=None, name="span.test")
-    assert s.sampled
-    assert s._sampling_priority is None
-
 def test_tags():
     s = Span(tracer=None, name="test.span")
     s.set_tag("a", "a")
@@ -175,10 +170,6 @@ def test_ctx_mgr():
     else:
         assert 0, "should have failed"
 
-def test_span_priority():
-    s = Span(tracer=None, name="test.span", service="s", resource="r")
-    eq_(None, s._sampling_priority, 'by default, no sampling priority defined')
-
 def test_span_to_dict():
     s = Span(tracer=None, name="test.span", service="s", resource="r")
     s.span_type = "foo"
@@ -225,25 +216,22 @@ def test_span_boolean_err():
     eq_(d["error"], 1)
     eq_(type(d["error"]), int)
 
-def test_span_to_dict_priority():
-    for i in range(10):
-        s = Span(tracer=None, name="test.span", service="s", resource="r")
-        s.span_type = "foo"
-        s.set_tag("a", "1")
-        s.set_meta("b", "2")
-        s._sampling_priority = i
-        s.finish()
+def test_span_to_dict():
+    s = Span(tracer=None, name="test.span", service="s", resource="r")
+    s.span_type = "foo"
+    s.set_tag("a", "1")
+    s.set_meta("b", "2")
+    s.finish()
 
-        d = s.to_dict()
-        assert d
-        eq_(d["span_id"], s.span_id)
-        eq_(d["trace_id"], s.trace_id)
-        eq_(d["parent_id"], s.parent_id)
-        eq_(d["meta"], {"a": "1", "b": "2"})
-        eq_(d["metrics"], {"_sampling_priority_v1": i})
-        eq_(d["type"], "foo")
-        eq_(d["error"], 0)
-        eq_(type(d["error"]), int)
+    d = s.to_dict()
+    assert d
+    eq_(d["span_id"], s.span_id)
+    eq_(d["trace_id"], s.trace_id)
+    eq_(d["parent_id"], s.parent_id)
+    eq_(d["meta"], {"a": "1", "b": "2"})
+    eq_(d["type"], "foo")
+    eq_(d["error"], 0)
+    eq_(type(d["error"]), int)
 
 class DummyTracer(object):
     def __init__(self):

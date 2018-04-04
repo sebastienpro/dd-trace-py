@@ -5,11 +5,12 @@ from os import getpid
 from .ext import system
 from .provider import DefaultContextProvider
 from .context import Context
-from .sampler import AllSampler, RateSampler, RateByServiceSampler, SAMPLE_RATE_METRIC_KEY
+from .sampler import AllSampler, RateSampler, RateByServiceSampler
 from .writer import AgentWriter
 from .span import Span
-from .constants import FILTERS_KEY
+from .constants import FILTERS_KEY, SAMPLE_RATE_METRIC_KEY
 from . import compat
+from .ext.priority import AUTO_REJECT, AUTO_KEEP
 
 
 log = logging.getLogger(__name__)
@@ -114,9 +115,15 @@ class Tracer(object):
 
         if hostname is not None or port is not None or filters is not None or \
                 priority_sampling is not None:
+            # Preserve hostname and port when overriding filters or priority sampling
+            default_hostname = self.DEFAULT_HOSTNAME
+            default_port = self.DEFAULT_PORT
+            if hasattr(self, 'writer') and hasattr(self.writer, 'api'):
+                default_hostname = self.writer.api.hostname
+                default_port = self.writer.api.port
             self.writer = AgentWriter(
-                hostname or self.DEFAULT_HOSTNAME,
-                port or self.DEFAULT_PORT,
+                hostname or default_hostname,
+                port or default_port,
                 filters=filters,
                 priority_sampler=self.priority_sampler,
             )
@@ -165,9 +172,9 @@ class Tracer(object):
         if parent:
             trace_id = parent.trace_id
             parent_span_id = parent.span_id
-            sampling_priority = parent._sampling_priority
         else:
-            trace_id, parent_span_id, sampling_priority = context.get_context_attributes()
+            trace_id = context.trace_id
+            parent_span_id = context.span_id
 
         if trace_id:
             # child_of a non-empty context, so either a local child span or from a remote context
@@ -185,7 +192,6 @@ class Tracer(object):
                 resource=resource,
                 span_type=span_type,
             )
-            span._sampling_priority = sampling_priority
 
             # Extra attributes when from a local parent
             if parent:
@@ -214,13 +220,13 @@ class Tracer(object):
                     # priority sampler will use the default sampling rate, which might
                     # lead to oversampling (that is, dropping too many traces).
                     if self.priority_sampler.sample(span):
-                        span._sampling_priority = 1
+                        context.sampling_priority = AUTO_KEEP
                     else:
-                        span._sampling_priority = 0
+                        context.sampling_priority = AUTO_REJECT
             else:
                 if self.priority_sampler:
                     # If dropped by the local sampler, distributed instrumentation can drop it too.
-                    span._sampling_priority = 0
+                    context.sampling_priority = 0
 
         # add common tags
         if self.tags:
